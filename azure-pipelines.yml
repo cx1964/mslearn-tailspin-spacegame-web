@@ -1,7 +1,19 @@
+# Filenaam: azure-pipelines.yml
+# Functie: Voorbeeld van een yaml Build en Publish script tbv Azure DevOps,
+#          waarmee een ASP .NET voorbeeld project kan worden ge-build en ge-deployed.
+#
+#          Het voorbeeld is afkomst van 
+#          Microsoft learn
+#          https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+#            
+# Dit script laat ook zien hoe dit script gebruik maakt van template yaml scripts
+# waarmee standaard yaml functionaliteit tijdens het build of deploy proces kan worden
+# gestandardiseerd.
+#
 # ASP.NET Core
 # Build and test ASP.NET Core projects targeting .NET Core.
 # Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+# 
 
 trigger:
 - '*'
@@ -43,21 +55,13 @@ steps:
     command: 'restore'
     projects: '**/*.csproj'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Build the project - $(buildConfiguration)'
-  inputs:
-    command: 'build'
-    arguments: '--no-restore --configuration $(buildConfiguration)'
-    projects: '**/*.csproj'
+- template: templates/build.yml
+  parameters:
+    buildConfiguration: 'Debug'
 
-- task: DotNetCoreCLI@2
-  displayName: 'Publish the project - $(buildConfiguration)'
-  inputs:
-    command: 'publish'
-    projects: '**/*.csproj'
-    publishWebProjects: false
-    arguments: '--no-build --configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)/$(buildConfiguration)'
-    zipAfterPublish: true
+- template: templates/build.yml
+  parameters:
+    buildConfiguration: 'Release'
 
 - task: PublishBuildArtifacts@1
   displayName: 'Publish Artifact: drop'
